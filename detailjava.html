@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSphere - Detail Materi Java</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        /* Top Navbar */
+        .top-nav { background-color: #ffffff; color: #1e293b; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; height: 60px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .back-btn { background: none; border: none; color: #64748b; font-weight: bold; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; gap: 5px; }
+        .back-btn:hover { color: #1e293b; }
+        .topic-title-nav { font-weight: bold; font-size: 0.95rem; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        .java-badge { background-color: #ffedd5; color: #c2410c; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+
+        /* Main Workspace Layout */
+        .workspace { display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
+
+        /* Sidebar Kiri */
+        .sidebar { width: 300px; background-color: #ffffff; border-right: 1px solid #e2e8f0; padding: 20px 15px; overflow-y: auto; }
+        .section-category { font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: bold; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .menu-list { list-style: none; padding: 0; margin: 0 0 25px 0; }
+        .menu-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: #475569; margin-bottom: 4px; transition: background 0.2s; line-height: 1.4; }
+        .menu-item:hover { background-color: #f1f5f9; color: #1e293b; }
+        .menu-item.active { background-color: #ffedd5; color: #c2410c; border-left: 4px solid #f97316; font-weight: bold; }
+
+        /* Konten Utama Kanan */
+        .content-area { flex: 1; padding: 30px; overflow-y: auto; background-color: #f8fafc; }
+        
+        .content-title { font-size: 1.8rem; font-weight: bold; margin-top: 0; margin-bottom: 20px; color: #0f172a; }
+
+        /* Card Teori */
+        .theory-card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 25px; line-height: 1.6; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .theory-card h3 { margin-top: 0; color: #c2410c; display: flex; align-items: center; gap: 8px; font-size: 1.1rem; }
+        .theory-card p { color: #334155; margin: 0; font-size: 0.95rem; }
+        .theory-card code { background-color: #f1f5f9; color: #ea580c; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9rem; border: 1px solid #e2e8f0; }
+
+        /* Tab Switcher (Kode & Output) */
+        .tab-container { display: flex; gap: 10px; margin-bottom: 0; }
+        .tab-btn { background-color: #e2e8f0; border: 1px solid #cbd5e1; border-bottom: none; color: #475569; padding: 8px 16px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; }
+        .tab-btn.active { background-color: #ffffff; color: #c2410c; border-top: 2px solid #f97316; border-bottom: 2px solid #ffffff; border-color: #e2e8f0; }
+        .tab-btn:hover { background-color: #cbd5e1; color: #1e293b; }
+
+        /* Code & Output Box */
+        .editor-box { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 0 8px 8px 8px; padding: 20px; position: relative; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 40px; }
+        .window-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .window-dots { display: flex; gap: 6px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #f59e0b; }
+        .dot-green { background-color: #10b981; }
+        .action-btns { display: flex; gap: 8px; }
+        .tool-btn { background: #f1f5f9; border: 1px solid #cbd5e1; color: #c2410c; font-size: 0.85rem; cursor: pointer; padding: 4px 10px; border-radius: 4px; }
+        .tool-btn:hover { background: #e2e8f0; color: #0f172a; }
+
+        /* Textarea Code Editor */
+        .code-textarea { width: 100%; height: 280px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; line-height: 1.5; color: #0f172a; resize: vertical; outline: none; }
+
+        /* Tampilan Output Terang dengan Indikator Hijau */
+        #output-view { display: none; background-color: #ffffff; padding: 25px; border-radius: 8px; min-height: 280px; border: 1px solid #e2e8f0; }
+        .run-btn { background: #f97316; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 15px; }
+        .run-btn:hover { background: #ea580c; }
+        
+        .output-header-indicator { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: bold; color: #16a34a; margin-bottom: 12px; letter-spacing: 0.5px; }
+        .output-dot { width: 8px; height: 8px; background-color: #16a34a; border-radius: 50%; }
+        
+        .terminal-screen { background: #f8fafc; color: #0f172a; border: 1px solid #cbd5e1; padding: 20px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; min-height: 150px; white-space: pre-wrap; font-size: 0.9rem; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <div class="top-nav">
+        <div class="nav-left">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+            <div class="topic-title-nav">
+                <span class="java-badge">Java</span> OOP & enterprise applications
+            </div>
+        </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="section-category">Dasar Java & OOP</div>
+            <ul class="menu-list">
+                <li class="menu-item active" onclick="switchTopic('helloworld', event)">Hello World & Tipe Data</li>
+                <li class="menu-item" onclick="switchTopic('classobject', event)">Class & Object — Sistem Siswa</li>
+            </ul>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            
+            <h2 class="content-title" id="page-heading">Hello World & Tipe Data</h2>
+
+            <!-- Teori Card -->
+            <div class="theory-card">
+                <h3>Teori</h3>
+                <p id="theory-text">
+                    Java adalah bahasa pemrograman yang berjalan di JVM (Java Virtual Machine). Setiap program Java harus memiliki method <code>main</code>. Java adalah bahasa yang strongly-typed — setiap variabel harus dideklarasikan dengan tipenya. Tipe primitif: <code>int</code>, <code>double</code>, <code>boolean</code>, <code>char</code>. <code>String</code> adalah tipe referensi untuk teks.
+                </p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="tab-container">
+                <button class="tab-btn active" id="btn-code" onclick="switchTab('code')">Kode</button>
+                <button class="tab-btn" id="btn-output" onclick="switchTab('output')">▶ Output</button>
+            </div>
+
+            <!-- Editor / Output Box -->
+            <div class="editor-box" id="editor-box-container">
+                <div id="code-view">
+                    <div class="window-header">
+                        <div class="window-dots">
+                            <div class="dot dot-red"></div>
+                            <div class="dot dot-yellow"></div>
+                            <div class="dot dot-green"></div>
+                        </div>
+                        <div class="action-btns">
+                            <button class="tool-btn" onclick="resetCode()">Reset</button>
+                            <button class="tool-btn" onclick="copyCode()">Salin</button>
+                        </div>
+                    </div>
+                    <textarea id="code-textarea" class="code-textarea"></textarea>
+                </div>
+
+                <div id="output-view">
+                    <button class="run-btn" onclick="runCodeJava()">Jalankan Program Java</button>
+                    
+                    <div id="java-output-container" style="display: none;">
+                        <div class="output-header-indicator">
+                            <div class="output-dot"></div> OUTPUT
+                        </div>
+                        <div id="java-output-result" class="terminal-screen"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const javaTopics = {
+            helloworld: {
+                title: "Hello World & Tipe Data",
+                theory: "Java adalah bahasa pemrograman yang berjalan di JVM (Java Virtual Machine). Setiap program Java harus memiliki method <code>main</code>. Java adalah bahasa yang strongly-typed — setiap variabel harus dideklarasikan dengan tipenya. Tipe primitif: <code>int</code>, <code>double</code>, <code>boolean</code>, <code>char</code>. <code>String</code> adalah tipe referensi untuk teks.",
+                code: `public class HelloSiswa {
+    public static void main(String[] args) {
+        // Deklarasi variabel
+        String nama = "Rizky Pratama";
+        int umur = 17;
+        double nilaiRata = 91.5;
+        boolean lulus = nilaiRata >= 75;
+
+        // Output program
+        System.out.println("=== DATA SISWA ===");
+        System.out.println("Nama   : " + nama);
+        System.out.println("Umur   : " + umur + " tahun");
+        System.out.println("Nilai  : " + nilaiRata);
+        System.out.println("Lulus  : " + (lulus ? "YA ✓" : "TIDAK ✗"));
+        System.out.println("");
+        System.out.println("Salam dari Java!");
+        System.out.println("Halo, " + nama.toUpperCase() + "!");
+    }
+}`,
+                output: `=== DATA SISWA ===
+Nama   : Rizky Pratama
+Umur   : 17 tahun
+Nilai  : 91.5
+Lulus  : YA ✓
+
+
+Halo, RIZKY PRATAMA!`
+            },
+            classobject: {
+                title: "Class & Object — Sistem Siswa",
+                theory: "Konsep Object-Oriented Programming (OOP) di Java menggunakan <code>class</code> sebagai cetak biru (blueprint) dan membuat objek menggunakan keyword <code>new</code> untuk mengakses atribut serta method di dalamnya.",
+                code: `class Siswa {
+    String nama;
+    String jurusan;
+
+    public void tampilkanInfo() {
+        System.out.println("Siswa: " + nama);
+        System.out.println("Jurusan: " + jurusan);
+        System.out.println("Status: AKTIF ✅");
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Siswa s1 = new Siswa();
+        s1.nama = "Ahmad Fauzi";
+        s1.jurusan = "Rekayasa Perangkat Lunak";
+        s1.tampilkanInfo();
+    }
+}`,
+                output: `Siswa: Ahmad Fauzi
+Jurusan: Rekayasa Perangkat Lunak
+Status: AKTIF ✅`
+            }
+        };
+
+        let currentTopicKey = 'helloworld';
+
+        function switchTab(tab) {
+            const btnCode = document.getElementById('btn-code');
+            const btnOutput = document.getElementById('btn-output');
+            const codeView = document.getElementById('code-view');
+            const outputView = document.getElementById('output-view');
+
+            if (tab === 'code') {
+                btnCode.classList.add('active');
+                btnOutput.classList.remove('active');
+                codeView.style.display = 'block';
+                outputView.style.display = 'none';
+            } else {
+                btnOutput.classList.add('active');
+                btnCode.classList.remove('active');
+                codeView.style.display = 'none';
+                outputView.style.display = 'block';
+            }
+        }
+
+        function runCodeJava() {
+            const container = document.getElementById('java-output-container');
+            const outputResult = document.getElementById('java-output-result');
+            container.style.display = 'block';
+            outputResult.textContent = javaTopics[currentTopicKey].output;
+        }
+
+        function copyCode() {
+            const textarea = document.getElementById('code-textarea');
+            textarea.select();
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                alert('Kode Java berhasil disalin!');
+            });
+        }
+
+        function resetCode() {
+            document.getElementById('code-textarea').value = javaTopics[currentTopicKey].code;
+            document.getElementById('java-output-container').style.display = 'none';
+            alert('Kode dikembalikan ke bentuk semula.');
+        }
+
+        function switchTopic(topicKey, event) {
+            currentTopicKey = topicKey;
+            const data = javaTopics[topicKey];
+
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            document.getElementById('page-heading').innerText = data.title;
+            document.getElementById('theory-text').innerHTML = data.theory;
+            document.getElementById('code-textarea').value = data.code;
+            document.getElementById('java-output-container').style.display = 'none';
+        }
+
+        // Inisialisasi awal saat halaman dimuat
+        document.getElementById('code-textarea').value = javaTopics['helloworld'].code;
+    </script>
+</body>
+</html>

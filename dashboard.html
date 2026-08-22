@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSphere</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #333; }
+        .navbar { background-color: #2c3e50; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 10px; font-weight: bold; cursor: pointer; padding: 8px 15px; border-radius: 6px; transition: background-color 0.3s; }
+        .nav-links a.active { background-color: rgba(255, 255, 255, 0.2); }
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+        
+        /* Tab Filter */
+        .filter-container { display: flex; gap: 10px; margin-bottom: 2rem; flex-wrap: wrap; justify-content: center; }
+        .filter-btn { padding: 8px 20px; background-color: #e2e8f0; border: none; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.3s; color: #4a5568; }
+        .filter-btn.active, .filter-btn:hover { background-color: #2c3e50; color: white; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 { margin-top: 5px; margin-bottom: 5px; color: #2c3e50; }
+        
+        /* Badge Kategori */
+        .badge { display: inline-block; padding: 4px 10px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; margin-bottom: 5px; text-transform: uppercase; }
+        .badge-web { background-color: #e3f2fd; color: #1976d2; }
+        .badge-backend { background-color: #e8f5e9; color: #388e3c; }
+        .badge-database { background-color: #fff3e0; color: #f57c00; }
+        .badge-mobile { background-color: #f3e5f5; color: #7b1fa2; }
+
+        /* Informasi Jumlah Modul & Pelajaran */
+        .stats-info { display: flex; gap: 20px; margin: 12px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; padding: 8px 0; }
+        .stat-item span { display: block; }
+        .stat-num { font-size: 1.1rem; font-weight: bold; color: #002c61; }
+        .stat-label { font-size: 0.8rem; color: #7f8c8d; }
+
+        .btn { display: inline-block; margin-top: 5px; padding: 10px 15px; border-radius: 6px; font-weight: bold; text-decoration: none; background-color: #3498db; color: white; text-align: center; }
+        .btn:hover { background-color: #2980b9; }
+        
+        @media (max-width: 600px) { .navbar { flex-direction: column; } .nav-links { margin-top: 15px; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <h1>CodeSphere</h1>
+        <div class="nav-links">
+            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="kuis.html">Kuis</a>
+            <a href="misi.html">Misi</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div style="text-align:center; margin-bottom: 1.5rem;">
+            <h2>Pilih Jalur Belajarmu</h2>
+        </div>
+
+        <!-- Filter Tab -->
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterCards('all', event)">Semua</button>
+            <button class="filter-btn" onclick="filterCards('web', event)">Web Dev</button>
+            <button class="filter-btn" onclick="filterCards('backend', event)">Backend</button>
+            <button class="filter-btn" onclick="filterCards('database', event)">Database</button>
+            <button class="filter-btn" onclick="filterCards('mobile', event)">Mobile</button>
+        </div>
+
+        <div class="grid" id="card-grid">
+            <!-- HTML -->
+            <div class="card" data-category="web">
+                <div>
+                    <span class="badge badge-web">Web Development</span>
+                    <h3>HTML</h3>
+                    <p>Kerangka halaman web dasar.</p>
+                </div>
+                <div class="stats-info">
+                    <div class="stat-item"><span class="stat-num">2</span><span class="stat-label">Modul</span></div>
+                </div>
+                <a href="detail.html" class="btn">Mulai</a>
+            </div>
+
+            <!-- CSS -->
+            <div class="card" data-category="web">
+                <div>
+                    <span class="badge badge-web">Web Development</span>
+                    <h3>CSS</h3>
+                    <p>Gaya & tampilan visual web.</p>
+                </div>
+                <div class="stats-info">
+                    <div class="stat-item"><span class="stat-num">2</span><span class="stat-label">Modul</span></div>
+                </div>
+                <a href="detailcss.html" class="btn">Mulai</a>
+            </div>
+
+            <!-- JavaScript -->
+            <div class="card" data-category="web">
+                <div>
+                    <span class="badge badge-web">Web Development</span>
+                    <h3>JavaScript</h3>
+                    <p>Interaktivitas halaman web.</p>
+                </div>
+                <div class="stats-info">
+                    <div class="stat-item"><span class="stat-num">2</span><span class="stat-label">Modul</span></div>
+                </div>
+                <a href="detailsc.html" class="btn">Mulai</a>
+            </div>
+
+            <!-- Python -->
+            <div class="card" data-category="backend">
+                <div>
+                    <span class="badge badge-backend">Backend</span>
+                    <h3>Python</h3>
+                    <p>Bahasa serbaguna & AI-friendly.</p>
+                </div>
+                <div class="stats-info">
+                    <div class="stat-item"><span class="stat-num">1</span><span class="stat-label">Modul</span></div>
+                </div>
+                <a href="detailpy.html" class="btn">Mulai</a>
+            </div>
+
+            <!-- PHP -->
+            <div class="card" data-category="backend">
+                <div>
+                    <span class="badge badge-backend">Backend</span>
+                    <h3>PHP</h3>
+                    <p>Backend web server-side.</p>
+                </div>
+                <div class="stats-info">
+                    <div class="stat-item"><span class="stat-num">1</span><span class="stat-label">Modul</span></div>
+                </div>
+                <a href="detailphp.html" class="btn">Mulai</a>
+            </div>
+
+            <!-- MySQL -->
+            <div class="card" data-category="database">
+                <div>
+                    <span class="badge badge-database">Database</span>
+                    <h3>MySQL</h3>
+                    <p>Database & manajemen data relasional.</p>
+                </div>
+                <div class="stats-info">
+                    <div class="stat-item"><span class="stat-num">1</span><span class="stat-label">Modul</span></div>
+                </div>
+                <a href="detailsql.html" class="btn">Mulai</a>
+            </div>
+
+            <!-- Java -->
+            <div class="card" data-category="backend">
+                <div>
+                    <span class="badge badge-backend">Backend</span>
+                    <h3>Java</h3>
+                    <p>OOP & enterprise applications.</p>
+                </div>
+                <div class="stats-info">
+                    <div class="stat-item"><span class="stat-num">1</span><span class="stat-label">Modul</span></div>
+                </div>
+                <a href="detailjava.html" class="btn">Mulai</a>
+            </div>
+
+            <!-- Kotlin -->
+            <div class="card" data-category="mobile">
+                <div>
+                    <span class="badge badge-mobile">Mobile</span>
+                    <h3>Kotlin</h3>
+                    <p>Android & modern mobile dev.</p>
+                </div>
+                <div class="stats-info">
+                    <div class="stat-item"><span class="stat-num">1</span><span class="stat-label">Modul</span></div>
+                </div>
+                <a href="detailkotlin.html" class="btn">Mulai</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterCards(category, e) {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

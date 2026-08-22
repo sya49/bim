@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSphere - Detail Materi SQL</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        /* Top Navbar */
+        .top-nav { background-color: #ffffff; color: #1e293b; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; height: 60px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .back-btn { background: none; border: none; color: #64748b; font-weight: bold; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; gap: 5px; }
+        .back-btn:hover { color: #1e293b; }
+        .topic-title-nav { font-weight: bold; font-size: 0.95rem; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        .sql-badge {  background-color: #f97316; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        /* Main Workspace Layout */
+        .workspace { display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
+
+        /* Sidebar Kiri */
+        .sidebar { width: 300px; background-color: #ffffff; border-right: 1px solid #e2e8f0; padding: 20px 15px; overflow-y: auto; }
+        .section-category { font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: bold; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .menu-list { list-style: none; padding: 0; margin: 0 0 25px 0; }
+        .menu-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: #475569; margin-bottom: 4px; transition: background 0.2s; line-height: 1.4; }
+        .menu-item:hover { background-color: #f1f5f9; color: #b95d00; }
+        .menu-item.active { background-color: #fff7ed; color: #c2410c; border-left: 4px solid #f97316; font-weight: bold; }
+
+        /* Konten Utama Kanan */
+        .content-area { flex: 1; padding: 30px; overflow-y: auto; background-color: #f8fafc; }
+        
+        .content-title { font-size: 1.8rem; font-weight: bold; margin-top: 0; margin-bottom: 20px; color: #0f172a; }
+
+        /* Card Teori */
+        .theory-card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 25px; line-height: 1.6; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .theory-card h3 { margin-top: 0; color: #002c61; display: flex; align-items: center; gap: 8px; font-size: 1.1rem; }
+        .theory-card p { color: #334155; margin: 0; font-size: 0.95rem; }
+        .theory-card code { background-color: #f1f5f9; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9rem; border: 1px solid #e2e8f0; }
+
+        /* Tab Switcher (Kode & Output) */
+        .tab-container { display: flex; gap: 10px; margin-bottom: 0; }
+        .tab-btn { background-color: #e2e8f0; border: 1px solid #cbd5e1; border-bottom: none; color: #475569; padding: 8px 16px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; }
+        .tab-btn.active { background-color: #ffffff; color: #0369a1; border-top: 2px solid #0ea5e9; border-bottom: 2px solid #ffffff; border-color: #e2e8f0; }
+        .tab-btn:hover { background-color: #cbd5e1; color: #1e293b; }
+
+        /* Code & Output Box */
+        .editor-box { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 0 8px 8px 8px; padding: 20px; position: relative; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 40px; }
+        .window-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .window-dots { display: flex; gap: 6px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #f59e0b; }
+        .dot-green { background-color: #10b981; }
+        .action-btns { display: flex; gap: 8px; }
+        .tool-btn { background: #f1f5f9; border: 1px solid #cbd5e1; color: #0369a1; font-size: 0.85rem; cursor: pointer; padding: 4px 10px; border-radius: 4px; }
+        .tool-btn:hover { background: #e2e8f0; color: #0f172a; }
+
+        /* Textarea Code Editor */
+        .code-textarea { width: 100%; height: 280px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; line-height: 1.5; color: #0f172a; resize: vertical; outline: none; }
+
+        /* Tampilan Output Gaya Terminal Terang */
+        #output-view { display: none; background-color: #ffffff; color: #1f2937; padding: 25px; border-radius: 8px; min-height: 280px; border: 1px solid #e2e8f0; }
+        .run-btn { background: #0284c7; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 15px; }
+        .run-btn:hover { background: #0369a1; }
+        
+        .terminal-screen { background: #f8fafc; color: #0369a1; border: 1px solid #cbd5e1; padding: 20px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; min-height: 150px; white-space: pre-wrap; font-size: 0.9rem; line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <div class="top-nav">
+        <div class="nav-left">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+            <div class="topic-title-nav">
+                <span class="sql-badge">MySQL</span> Database & manajemen data
+            </div>
+        </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="section-category">Dasar SQL</div>
+            <ul class="menu-list">
+                <li class="menu-item active" onclick="switchTopic('createtable', event)">CREATE TABLE & INSERT Data</li>
+                <li class="menu-item" onclick="switchTopic('selectwhere', event)">SELECT & WHERE — Query Data</li>
+            </ul>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            
+            <h2 class="content-title" id="page-heading">CREATE TABLE & INSERT Data</h2>
+
+            <!-- Teori Card -->
+            <div class="theory-card">
+                <h3>Teori</h3>
+                <p id="theory-text">
+                    SQL (Structured Query Language) adalah bahasa untuk mengelola database. <code>CREATE TABLE</code> membuat tabel baru dengan mendefinisikan kolom dan tipe datanya. <code>INSERT INTO</code> memasukkan baris data ke tabel. Tipe data umum: <code>VARCHAR</code> (teks), <code>INT</code> (bilangan bulat), <code>DECIMAL</code> (desimal), <code>DATE</code> (tanggal), <code>BOOLEAN</code> (benar/salah).
+                </p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="tab-container">
+                <button class="tab-btn active" id="btn-code" onclick="switchTab('code')">Kode</button>
+                <button class="tab-btn" id="btn-output" onclick="switchTab('output')">▶ Output</button>
+            </div>
+
+            <!-- Editor / Output Box -->
+            <div class="editor-box" id="editor-box-container">
+                <div id="code-view">
+                    <div class="window-header">
+                        <div class="window-dots">
+                            <div class="dot dot-red"></div>
+                            <div class="dot dot-yellow"></div>
+                            <div class="dot dot-green"></div>
+                        </div>
+                        <div class="action-btns">
+                            <button class="tool-btn" onclick="resetCode()">Reset</button>
+                            <button class="tool-btn" onclick="copyCode()">Salin</button>
+                        </div>
+                    </div>
+                    <textarea id="code-textarea" class="code-textarea"></textarea>
+                </div>
+
+                <div id="output-view">
+                    <button class="run-btn" onclick="runCodeSQL()">Eksekusi Kueri SQL</button>
+                    <div id="sql-output-result" class="terminal-screen" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sqlTopics = {
+            createtable: {
+                title: "CREATE TABLE & INSERT Data",
+                theory: "SQL (Structured Query Language) adalah bahasa untuk mengelola database. <code>CREATE TABLE</code> membuat tabel baru dengan mendefinisikan kolom dan tipe datanya. <code>INSERT INTO</code> memasukkan baris data ke tabel. Tipe data umum: <code>VARCHAR</code> (teks), <code>INT</code> (bilangan bulat), <code>DECIMAL</code> (desimal), <code>DATE</code> (tanggal), <code>BOOLEAN</code> (benar/salah).",
+                code: `-- Membuat database
+CREATE DATABASE sekolah_db;
+USE sekolah_db;
+
+-- Membuat tabel siswa
+CREATE TABLE siswa (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nis VARCHAR(10) NOT NULL UNIQUE,
+    nama VARCHAR(100) NOT NULL,
+    kelas VARCHAR(10),
+    jurusan VARCHAR(50)
+);
+
+-- Memasukkan data awal
+INSERT INTO siswa (nis, nama, kelas, jurusan) VALUES 
+('10101', 'Ahmad Fauzi', 'XII', 'RPL'),
+('10102', 'Siti Rahma', 'XII', 'TKJ'),
+('10103', 'Budi Santoso', 'XI', 'RPL');`,
+                output: `Query OK, 0 rows affected
+Database changed
+Query OK, 0 rows affected
+Query OK, 3 rows affected
+
++------------------------+
+| status                 |
++------------------------+
+| Data berhasil dimasukkan!|
++------------------------+`
+            },
+            selectwhere: {
+                title: "SELECT & WHERE — Query Data",
+                theory: "Perintah <code>SELECT</code> digunakan untuk memilih data dari database, sedangkan klausa <code>WHERE</code> digunakan untuk memfilter catatan atau baris data tertentu berdasarkan kriteria tertentu.",
+                code: `-- Menampilkan seluruh data siswa
+SELECT * FROM siswa;
+
+-- Memfilter data dengan klausa WHERE
+SELECT nama, jurusan FROM siswa WHERE jurusan = 'RPL';`,
+                output: `+----+-------+--------------+-------+---------+
+| id | nis   | nama         | kelas | jurusan |
++----+-------+--------------+-------+---------+
+|  1 | 10101 | Ahmad Fauzi  | XII   | RPL     |
+|  2 | 10102 | Siti Rahma   | XII   | TKJ     |
+|  3 | 10103 | Budi Santoso | XI    | RPL     |
++----+-------+--------------+-------+---------+
+3 rows in set (0.00 sec)
+
++--------------+---------+
+| nama         | jurusan |
++--------------+---------+
+| Ahmad Fauzi  | RPL     |
+| Budi Santoso | RPL     |
++--------------+---------+
+2 rows in set (0.00 sec)`
+            }
+        };
+
+        let currentTopicKey = 'createtable';
+
+        function switchTab(tab) {
+            const btnCode = document.getElementById('btn-code');
+            const btnOutput = document.getElementById('btn-output');
+            const codeView = document.getElementById('code-view');
+            const outputView = document.getElementById('output-view');
+
+            if (tab === 'code') {
+                btnCode.classList.add('active');
+                btnOutput.classList.remove('active');
+                codeView.style.display = 'block';
+                outputView.style.display = 'none';
+            } else {
+                btnOutput.classList.add('active');
+                btnCode.classList.remove('active');
+                codeView.style.display = 'none';
+                outputView.style.display = 'block';
+            }
+        }
+
+        function runCodeSQL() {
+            const outputResult = document.getElementById('sql-output-result');
+            outputResult.style.display = 'block';
+            outputResult.textContent = sqlTopics[currentTopicKey].output;
+        }
+
+        function copyCode() {
+            const textarea = document.getElementById('code-textarea');
+            textarea.select();
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                alert('Kode SQL berhasil disalin!');
+            });
+        }
+
+        function resetCode() {
+            document.getElementById('code-textarea').value = sqlTopics[currentTopicKey].code;
+            document.getElementById('sql-output-result').style.display = 'none';
+            alert('Kode dikembalikan ke bentuk semula.');
+        }
+
+        function switchTopic(topicKey, event) {
+            currentTopicKey = topicKey;
+            const data = sqlTopics[topicKey];
+
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            document.getElementById('page-heading').innerText = data.title;
+            document.getElementById('theory-text').innerHTML = data.theory;
+            document.getElementById('code-textarea').value = data.code;
+            document.getElementById('sql-output-result').style.display = 'none';
+        }
+
+        // Inisialisasi awal saat halaman dimuat
+        document.getElementById('code-textarea').value = sqlTopics['createtable'].code;
+    </script>
+</body>
+</html>

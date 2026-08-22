@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSphere - Misi Tangkap Buah</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #333; }
+        .navbar { background-color: #2c3e50; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 10px; font-weight: bold; cursor: pointer; padding: 8px 15px; border-radius: 6px; transition: background-color 0.3s; }
+        .nav-links a.active { background-color: rgba(255, 255, 255, 0.2); }
+        .container { max-width: 600px; margin: 1.5rem auto; padding: 0 1rem; text-align: center; }
+        
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative; }
+        .btn { display: inline-block; margin-top: 10px; padding: 10px 20px; border-radius: 6px; font-weight: bold; text-decoration: none; background-color: #3498db; color: white; text-align: center; cursor: pointer; border: none; font-size: 1rem; }
+        .btn:hover { background-color: #2980b9; }
+
+        /* Game Header & UI */
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; font-size: 0.95rem; }
+        .game-controls-right { display: flex; gap: 6px; align-items: center; }
+        .icon-btn { width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 0.9rem; }
+        .pause-icon { background-color: #ff9f1a; }
+        .exit-icon { background-color: #ff4757; }
+
+        #game-area { width: 350px; height: 350px; margin: 0 auto 15px auto; position: relative; background-color: #fff; border: 2px solid #333; border-radius: 4px; overflow: hidden; }
+        
+        /* Elemen Game */
+        #basket { position: absolute; bottom: 10px; left: 135px; width: 80px; height: 40px; background-color: #d35400; border-radius: 0 0 20px 20px; z-index: 5; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 -5px 10px rgba(0,0,0,0.2); }
+        .falling-item { position: absolute; width: 30px; height: 30px; font-size: 24px; display: flex; justify-content: center; align-items: center; z-index: 4; user-select: none; }
+
+        /* Layar Hitung Mundur Overlay */
+        #countdown-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 25; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        #countdown-number { font-size: 4rem; font-weight: bold; color: #e74c3c; animation: pulse 1s infinite; }
+
+        /* Tombol Navigasi Kiri Kanan untuk Keranjang */
+        .directional-controls { display: flex; justify-content: center; gap: 12px; margin-top: 15px; }
+        .dir-btn { width: 45px; height: 45px; background: #fff; border: 2px solid #2c3e50; border-radius: 8px; font-size: 1.3rem; cursor: pointer; color: #2c3e50; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: all 0.1s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .dir-btn:hover { background-color: #3498db; color: white; border-color: #3498db; }
+        .dir-btn:active { transform: scale(0.90); }
+
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 30; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; padding: 25px; width: 80%; max-width: 320px; text-align: center; border-radius: 10px; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        @media (max-width: 600px) { .navbar { flex-direction: column; } .nav-links { margin-top: 10px; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <h1>CodeSphere</h1>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="kuis.html">Kuis</a>
+            <a href="misi.html" class="active">Misi</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <!-- Hitung Mundur 3-2-1 -->
+            <div id="countdown-overlay">
+                <h2>Siap-siap Menangkap Buah!</h2>
+                <div id="countdown-number">3</div>
+            </div>
+
+            <div class="game-header">
+                <span id="score-text">Skor: 0 poin</span>
+                <span id="bom-text" style="color: #c0392b;">Bom: 0/3</span>
+                <span id="timer-text">01.00</span>
+                <div class="game-controls-right">
+                    <button class="icon-btn pause-icon" id="pause-btn" title="Pause">⏸</button>
+                    <button class="icon-btn exit-icon" id="exit-btn" title="Keluar">✕</button>
+                </div>
+            </div>
+
+            <div id="game-area">
+                <div id="basket"></div>
+            </div>
+
+            <!-- Kontrol Geser Keranjang (Kiri & Kanan) -->
+            <div class="directional-controls">
+                <button class="dir-btn" id="btn-left" title="Geser Kiri">←</button>
+                <button class="dir-btn" id="btn-right" title="Geser Kanan">→</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Keluar -->
+    <div id="exit-modal" class="modal">
+        <div class="modal-content">
+            <h3>Konfirmasi Keluar</h3>
+            <p>Apakah Anda yakin ingin keluar dari misi?</p>
+            <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+                <button id="confirm-exit" class="btn" style="background-color: #e74c3c; margin-top:0;">Ya</button>
+                <button id="cancel-exit" class="btn" style="background-color: #95a5a6; margin-top:0;">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Game Over / Selesai -->
+    <div id="gameover-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="gameover-title" style="color: #e74c3c;">Waktu Habis!</h3>
+            <p id="gameover-desc">Skor akhir Anda: 0 poin</p>
+            <button onclick="location.reload()" class="btn" style="margin-top: 10px;">Coba Lagi</button>
+        </div>
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('game-area');
+        const basket = document.getElementById('basket');
+        const scoreText = document.getElementById('score-text');
+        const bomText = document.getElementById('bom-text');
+        const timerText = document.getElementById('timer-text');
+        const countdownOverlay = document.getElementById('countdown-overlay');
+        const countdownNumber = document.getElementById('countdown-number');
+        const gameOverModal = document.getElementById('gameover-modal');
+        const exitModal = document.getElementById('exit-modal');
+        const pauseBtn = document.getElementById('pause-btn');
+
+        let score = 0;
+        let bomCount = 0;
+        let timeLeft = 60; // Durasi 1 menit
+        let isPlaying = false;
+        let isPaused = false;
+        let basketX = 135;
+        const basketSpeed = 25;
+        let items = [];
+        let gameInterval, spawnerInterval, timerInterval;
+
+        // Jenis Item dan Poinnya
+        const itemTypes = [
+            { icon: '🍇', points: 50, type: 'fruit' },
+            { icon: '🍓', points: 35, type: 'fruit' },
+            { icon: '🍎', points: 20, type: 'fruit' },
+            { icon: '🍊', points: 10, type: 'fruit' },
+            { icon: '💣', points: 0, type: 'bomb' }
+        ];
+
+        // Hitung Mundur 3, 2, 1, Mulai
+        function startCountdown() {
+            let count = 3;
+            countdownNumber.textContent = count;
+            let cdInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownNumber.textContent = count;
+                } else if (count === 0) {
+                    countdownNumber.textContent = "Mulai!";
+                } else {
+                    clearInterval(cdInterval);
+                    countdownOverlay.style.display = 'none';
+                    startGameEngine();
+                }
+            }, 1000);
+        }
+
+        function startGameEngine() {
+            isPlaying = true;
+            startTimer();
+            spawnerInterval = setInterval(spawnItem, 800);
+            gameInterval = setInterval(updateGame, 30);
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (!isPaused && isPlaying) {
+                    timeLeft--;
+                    let mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                    let secs = (timeLeft % 60).toString().padStart(2, '0');
+                    timerText.textContent = `${mins}.${secs}`;
+
+                    if (timeLeft <= 0) {
+                        endGame("Waktu Habis!");
+                    }
+                }
+            }, 1000);
+        }
+
+        function spawnItem() {
+            if (!isPlaying || isPaused) return;
+            const randData = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+            const xPos = Math.floor(Math.random() * 320);
+
+            const el = document.createElement('div');
+            el.className = 'falling-item';
+            el.textContent = randData.icon;
+            el.style.left = xPos + 'px';
+            el.style.top = '0px';
+            gameArea.appendChild(el);
+
+            items.push({
+                element: el,
+                x: xPos,
+                y: 0,
+                points: randData.points,
+                type: randData.type,
+                speed: Math.random() * 2 + 2.5
+            });
+        }
+
+        function updateGame() {
+            if (!isPlaying || isPaused) return;
+
+            // Pergerakan keranjang
+            basket.style.left = basketX + 'px';
+
+            // Update posisi item jatuh
+            for (let i = items.length - 1; i >= 0; i--) {
+                let itm = items[i];
+                itm.y += itm.speed;
+                itm.element.style.top = itm.y + 'px';
+
+                // Deteksi tangkapan keranjang (Posisi Y keranjang berada di kisaran 300px)
+                if (itm.y >= 270 && itm.y <= 310) {
+                    // Cek koordinat horizontal X keranjang (lebar keranjang 80px)
+                    if (itm.x + 15 >= basketX && itm.x + 15 <= basketX + 80) {
+                        if (itm.type === 'bomb') {
+                            bomCount++;
+                            bomText.textContent = `Bom: ${bomCount}/3`;
+                            if (bomCount >= 3) {
+                                itm.element.remove();
+                                items.splice(i, 1);
+                                endGame("Game Over! Terlalu banyak bom.");
+                                return;
+                            }
+                        } else {
+                            score += itm.points;
+                            scoreText.textContent = `Skor: ${score} poin`;
+                        }
+                        itm.element.remove();
+                        items.splice(i, 1);
+                        continue;
+                    }
+                }
+
+                // Hapus jika melewati batas bawah
+                if (itm.y > 350) {
+                    itm.element.remove();
+                    items.splice(i, 1);
+                }
+            }
+        }
+
+        function endGame(reason) {
+            isPlaying = false;
+            clearInterval(gameInterval);
+            clearInterval(spawnerInterval);
+            clearInterval(timerInterval);
+
+            document.getElementById('gameover-title').textContent = reason;
+            document.getElementById('gameover-desc').textContent = `Skor akhir Anda: ${score} poin | Bom tertangkap: ${bomCount}/3`;
+            gameOverModal.style.display = 'flex';
+        }
+
+        // Kontrol Tombol Kiri dan Kanan
+        function moveBasket(dir) {
+            if (!isPlaying || isPaused) return;
+            if (dir === 'left') {
+                basketX = Math.max(0, basketX - basketSpeed);
+            } else if (dir === 'right') {
+                basketX = Math.min(270, basketX + basketSpeed);
+            }
+            basket.style.left = basketX + 'px';
+        }
+
+        document.getElementById('btn-left').addEventListener('click', () => moveBasket('left'));
+        document.getElementById('btn-right').addEventListener('click', () => moveBasket('right'));
+
+        // Kontrol Keyboard (Panah Kiri/Kanan & A/D)
+        window.addEventListener('keydown', (e) => {
+            if (['ArrowLeft', 'KeyA', 'a'].includes(e.code) || e.key === 'ArrowLeft') moveBasket('left');
+            if (['ArrowRight', 'KeyD', 'd'].includes(e.code) || e.key === 'ArrowRight') moveBasket('right');
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            if (!isPlaying) return;
+            isPaused = !isPaused;
+            pauseBtn.textContent = isPaused ? '▶' : '⏸';
+        });
+
+        document.getElementById('exit-btn').addEventListener('click', () => {
+            isPaused = true;
+            exitModal.style.display = 'flex';
+        });
+
+        document.getElementById('confirm-exit').addEventListener('click', () => {
+            window.location.href = 'misi.html';
+        });
+
+        document.getElementById('cancel-exit').addEventListener('click', () => {
+            exitModal.style.display = 'none';
+            isPaused = false;
+        });
+
+        // Mulai Hitung Mundur saat halaman dimuat
+        window.onload = () => {
+            startCountdown();
+        };
+    </script>
+</body>
+</html>

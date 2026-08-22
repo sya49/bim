@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSphere - Detail Materi Kotlin</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        /* Top Navbar */
+        .top-nav { background-color: #ffffff; color: #1e293b; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; height: 60px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .back-btn { background: none; border: none; color: #64748b; font-weight: bold; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; gap: 5px; }
+        .back-btn:hover { color: #1e293b; }
+        .topic-title-nav { font-weight: bold; font-size: 0.95rem; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        .kotlin-badge { background-color: #f3e8ff; color: #9333ea; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+
+        /* Main Workspace Layout */
+        .workspace { display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
+
+        /* Sidebar Kiri */
+        .sidebar { width: 300px; background-color: #ffffff; border-right: 1px solid #e2e8f0; padding: 20px 15px; overflow-y: auto; }
+        .section-category { font-size: 0.75rem; text-transform: uppercase; color: #64748b; font-weight: bold; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .menu-list { list-style: none; padding: 0; margin: 0 0 25px 0; }
+        .menu-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: #475569; margin-bottom: 4px; transition: background 0.2s; line-height: 1.4; }
+        .menu-item:hover { background-color: #f8fafc; color: #1e293b; }
+        .menu-item.active { background-color: #f3e8ff; color: #7e22ce; border-left: 4px solid #a855f7; font-weight: bold; }
+
+        /* Konten Utama Kanan */
+        .content-area { flex: 1; padding: 30px; overflow-y: auto; background-color: #f8fafc; }
+        
+        .content-title { font-size: 1.8rem; font-weight: bold; margin-top: 0; margin-bottom: 20px; color: #0f172a; }
+
+        /* Card Teori */
+        .theory-card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 25px; line-height: 1.6; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .theory-card h3 { margin-top: 0; color: #020066; display: flex; align-items: center; gap: 8px; font-size: 1.1rem; }
+        .theory-card p { color: #334155; margin: 0; font-size: 0.95rem; }
+        .theory-card code { background-color: #f8fafc; color: #090086; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9rem; border: 1px solid #e2e8f0; }
+
+        /* Tab Switcher (Kode & Output) */
+        .tab-container { display: flex; gap: 10px; margin-bottom: 0; }
+        .tab-btn { background-color: #e2e8f0; border: 1px solid #cbd5e1; border-bottom: none; color: #475569; padding: 8px 16px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; }
+        .tab-btn.active { background-color: #ffffff; color: #7e22ce; border-top: 2px solid #a855f7; border-bottom: 2px solid #ffffff; border-color: #e2e8f0; }
+        .tab-btn:hover { background-color: #cbd5e1; color: #1e293b; }
+
+        /* Code & Output Box */
+        .editor-box { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 0 8px 8px 8px; padding: 20px; position: relative; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 40px; }
+        .window-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .window-dots { display: flex; gap: 6px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #f59e0b; }
+        .dot-green { background-color: #10b981; }
+        .action-btns { display: flex; gap: 8px; }
+        .tool-btn { background: #f8fafc; border: 1px solid #cbd5e1; color: #9333ea; font-size: 0.85rem; cursor: pointer; padding: 4px 10px; border-radius: 4px; }
+        .tool-btn:hover { background: #f1f5f9; color: #0f172a; }
+
+        /* Textarea Code Editor */
+        .code-textarea { width: 100%; height: 280px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; font-family: 'Courier New', Courier, monospace; font-size: 0.9rem; line-height: 1.5; color: #0f172a; resize: vertical; outline: none; }
+
+        /* Tampilan Output Mode Perangkat Mobile (Smartphone Mockup) */
+        #output-view { display: none; background-color: #ffffff; padding: 25px; border-radius: 8px; min-height: 340px; border: 1px solid #e2e8f0; text-align: center; }
+        .run-btn { background: #9333ea; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 20px; }
+        .run-btn:hover { background: #7e22ce; }
+
+        /* Smartphone Frame */
+        .phone-mockup {
+            width: 260px;
+            height: 440px;
+            background-color: #0f172a;
+            border-radius: 36px;
+            margin: 0 auto;
+            padding: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background-color: #f8fafc;
+            border-radius: 26px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #334155;
+            text-align: left;
+        }
+        .phone-notch {
+            width: 90px;
+            height: 16px;
+            background-color: #0f172a;
+            margin: 0 auto;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        .phone-header-bar {
+            background-color: #9333ea;
+            color: white;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .phone-body-content {
+            padding: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.85rem;
+            color: #1e293b;
+            flex: 1;
+            overflow-y: auto;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <div class="top-nav">
+        <div class="nav-left">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+            <div class="topic-title-nav">
+                <span class="kotlin-badge">Kotlin</span> Mobile App Development
+            </div>
+        </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="section-category">Dasar Kotlin & Android</div>
+            <ul class="menu-list">
+                <li class="menu-item active" onclick="switchTopic('syntax', event)">Variabel & Null Safety</li>
+                <li class="menu-item" onclick="switchTopic('intent', event)">Android Intent & UI Interaksi</li>
+            </ul>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            
+            <h2 class="content-title" id="page-heading">Variabel & Null Safety</h2>
+
+            <!-- Teori Card -->
+            <div class="theory-card">
+                <h3>Teori</h3>
+                <p id="theory-text">
+                    Kotlin adalah bahasa modern yang berjalan di atas JVM dan menjadi bahasa resmi utama untuk pengembangan Android. Fitur unggulannya meliputi <code>val</code> (immutable) dan <code>var</code> (mutable), serta sistem <code>Null Safety</code> bawaan untuk menghindari error <code>NullPointerException</code> yang sering terjadi di Java.
+                </p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="tab-container">
+                <button class="tab-btn active" id="btn-code" onclick="switchTab('code')">Kode</button>
+                <button class="tab-btn" id="btn-output" onclick="switchTab('output')">▶ Output Emulator</button>
+            </div>
+
+            <!-- Editor / Output Box -->
+            <div class="editor-box" id="editor-box-container">
+                <div id="code-view">
+                    <div class="window-header">
+                        <div class="window-dots">
+                            <div class="dot dot-red"></div>
+                            <div class="dot dot-yellow"></div>
+                            <div class="dot dot-green"></div>
+                        </div>
+                        <div class="action-btns">
+                            <button class="tool-btn" onclick="resetCode()">Reset</button>
+                            <button class="tool-btn" onclick="copyCode()">Salin</button>
+                        </div>
+                    </div>
+                    <textarea id="code-textarea" class="code-textarea"></textarea>
+                </div>
+
+                <div id="output-view">
+                    <button class="run-btn" onclick="runCodeKotlin()">Jalankan di Android Emulator</button>
+                    
+                    <!-- Smartphone Mockup Container -->
+                    <div id="kotlin-output-container" style="display: none;">
+                        <div class="phone-mockup">
+                            <div class="phone-screen">
+                                <div class="phone-notch"></div>
+                                <div class="phone-header-bar">
+                                    <span id="app-bar-title">Android App</span>
+                                    <span style="font-size: 0.7rem;">5G 🔋</span>
+                                </div>
+                                <div id="phone-content-body" class="phone-body-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const kotlinTopics = {
+            syntax: {
+                title: "Variabel & Null Safety",
+                theory: "Kotlin adalah bahasa modern yang berjalan di atas JVM dan menjadi bahasa resmi utama untuk pengembangan Android. Fitur unggulannya meliputi <code>val</code> (immutable) dan <code>var</code> (mutable), serta sistem <code>Null Safety</code> bawaan untuk menghindari error <code>NullPointerException</code>.",
+                code: `fun main() {
+    val namaApp: String = "CodeSphere Mobile"
+    val versi: Double = 1.4
+    var username: String? = "Rizky Pratama"
+    
+    println("--- APLIKASI ANDROID ---")
+    println("Aplikasi: $namaApp (v$versi)")
+    
+    // Null Safety Check
+    val panjangNama = username?.length ?: 0
+    println("User Aktif: $username")
+    println("Karakter Nama: $panjangNama huruf")
+    println("Status: BERHASIL DIMUAT ✓")
+}`,
+                appTitle: "CodeSphere v1.4",
+                output: `<div style="font-weight: bold; color: #9333ea; margin-bottom: 8px;">📱 Sifat & Null Safety</div>
+<div style="background: #f3e8ff; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-size: 0.8rem;">
+  <b>App:</b> CodeSphere Mobile<br>
+  <b>Versi:</b> 1.4
+</div>
+<div><b>User:</b> Rizky Pratama</div>
+<div><b>Panjang Karakter:</b> 13 huruf</div>
+<div style="margin-top: 10px; color: #16a34a; font-weight: bold;">Status: BERHASIL DIMUAT ✓</div>`
+            },
+            intent: {
+                title: "Android Intent & UI Interaksi",
+                theory: "Dalam pengembangan aplikasi Android, <code>Intent</code> digunakan untuk berpindah antar Activity atau mengirim data antar halaman antarmuka (UI) secara mulus.",
+                code: `// Simulasi perpindahan Activity di Android
+fun bukaHalamanProfil() {
+    val user = "Rizky Pratama"
+    val poin = 350
+    
+    println("Navigasi ke ProfileActivity...")
+    println("Mengirim Data -> User: $user, Poin: $poin")
+    println("Activity berhasil dimuat!")
+}`,
+                appTitle: "Profile Activity",
+                output: `<div style="font-weight: bold; color: #9333ea; margin-bottom: 8px;">👤 Profile Screen</div>
+<div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1;">
+  <p style="margin: 0 0 4px 0;"><b>Nama:</b> Rizky Pratama</p>
+  <p style="margin: 0 0 4px 0;"><b>Poin:</b> 350 XP</p>
+  <p style="margin: 0; color: #16a34a; font-size: 0.75rem;">Intent Extra Loaded Successfully</p>
+</div>`
+            }
+        };
+
+        let currentTopicKey = 'syntax';
+
+        function switchTab(tab) {
+            const btnCode = document.getElementById('btn-code');
+            const btnOutput = document.getElementById('btn-output');
+            const codeView = document.getElementById('code-view');
+            const outputView = document.getElementById('output-view');
+
+            if (tab === 'code') {
+                btnCode.classList.add('active');
+                btnOutput.classList.remove('active');
+                codeView.style.display = 'block';
+                outputView.style.display = 'none';
+            } else {
+                btnOutput.classList.add('active');
+                btnCode.classList.remove('active');
+                codeView.style.display = 'none';
+                outputView.style.display = 'block';
+            }
+        }
+
+        function runCodeKotlin() {
+            const container = document.getElementById('kotlin-output-container');
+            const bodyContent = document.getElementById('phone-content-body');
+            const appBarTitle = document.getElementById('app-bar-title');
+
+            container.style.display = 'block';
+            appBarTitle.textContent = kotlinTopics[currentTopicKey].appTitle;
+            bodyContent.innerHTML = kotlinTopics[currentTopicKey].output;
+        }
+
+        function copyCode() {
+            const textarea = document.getElementById('code-textarea');
+            textarea.select();
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                alert('Kode Kotlin berhasil disalin!');
+            });
+        }
+
+        function resetCode() {
+            document.getElementById('code-textarea').value = kotlinTopics[currentTopicKey].code;
+            document.getElementById('kotlin-output-container').style.display = 'none';
+            alert('Kode dikembalikan ke bentuk semula.');
+        }
+
+        function switchTopic(topicKey, event) {
+            currentTopicKey = topicKey;
+            const data = kotlinTopics[topicKey];
+
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            document.getElementById('page-heading').innerText = data.title;
+            document.getElementById('theory-text').innerHTML = data.theory;
+            document.getElementById('code-textarea').value = data.code;
+            document.getElementById('kotlin-output-container').style.display = 'none';
+        }
+
+        // Inisialisasi awal saat halaman dimuat
+        document.getElementById('code-textarea').value = kotlinTopics['syntax'].code;
+    </script>
+</body>
+</html>

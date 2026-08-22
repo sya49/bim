@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSphere - Misi Labirin</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f0f2f5; color: #333; }
+        .navbar { background-color: #2c3e50; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-links a { color: white; text-decoration: none; margin-left: 10px; font-weight: bold; cursor: pointer; padding: 8px 15px; border-radius: 6px; transition: background-color 0.3s; }
+        .nav-links a.active { background-color: rgba(255, 255, 255, 0.2); }
+        .container { max-width: 600px; margin: 1.5rem auto; padding: 0 1rem; text-align: center; }
+        
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn { display: inline-block; margin-top: 10px; padding: 10px 20px; border-radius: 6px; font-weight: bold; text-decoration: none; background-color: #3498db; color: white; text-align: center; cursor: pointer; border: none; font-size: 1rem; }
+        .btn:hover { background-color: #2980b9; }
+
+        /* Game Header & UI dengan Timer di Tengah */
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; position: relative; height: 40px; }
+        #timer-text { font-weight: bold; font-size: 1.2rem; color: #e74c3c; position: absolute; left: 50%; transform: translateX(-50%); }
+        .game-controls-right { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+        
+        .icon-btn { width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; font-size: 1rem; }
+        .pause-icon { background-color: #ff9f1a; font-size: 1.1rem; }
+        .exit-icon { background-color: #ff4757; }
+
+        #game-area { width: 350px; height: 350px; margin: 0 auto 15px auto; position: relative; background-color: #fff; border: 2px solid #333; border-radius: 4px; overflow: hidden; }
+        canvas { display: block; background: #fff; }
+        #player { position: absolute; width: 12px; height: 12px; background-color: #e74c3c; border-radius: 50%; z-index: 5; }
+
+        /* Kontrol Tombol Arah (Urutan: Kiri, Kanan, Bawah, Atas) */
+        .directional-controls { display: flex; justify-content: center; gap: 12px; margin-top: 15px; }
+        .dir-btn { width: 45px; height: 45px; background: #fff; border: 2px solid #2c3e50; border-radius: 8px; font-size: 1.3rem; cursor: pointer; color: #2c3e50; font-weight: bold; display: flex; justify-content: center; align-items: center; transition: all 0.1s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .dir-btn:hover { background-color: #3498db; color: white; border-color: #3498db; }
+        .dir-btn:active { transform: scale(0.90); }
+
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 20; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
+        .modal-content { background-color: #fff; padding: 25px; width: 80%; max-width: 320px; text-align: center; border-radius: 10px; }
+
+        @media (max-width: 600px) { .navbar { flex-direction: column; } .nav-links { margin-top: 10px; } }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <h1>CodeSphere</h1>
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="kuis.html">Kuis</a>
+            <a href="misi.html" class="active">Misi</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="game-header">
+                <!-- Timer di Tengah -->
+                <span id="timer-text">00.45</span>
+                
+                <!-- Tombol Pause & Exit di Kanan Atas -->
+                <div class="game-controls-right">
+                    <button class="icon-btn pause-icon" id="pause-btn" title="Pause">⏸</button>
+                    <button class="icon-btn exit-icon" id="exit-btn" title="Keluar">✕</button>
+                </div>
+            </div>
+
+            <div id="game-area">
+                <div id="player" style="left: 12px; top: 12px;"></div>
+                <canvas id="mazeCanvas" width="350" height="350"></canvas>
+            </div>
+
+            <!-- Tombol Navigasi Sesuai Urutan: Kiri, Kanan, Bawah, Atas -->
+            <div class="directional-controls">
+                <button class="dir-btn" onclick="moveDir('left')" title="Kiri">←</button>
+                <button class="dir-btn" onclick="moveDir('right')" title="Kanan">→</button>
+                <button class="dir-btn" onclick="moveDir('down')" title="Bawah">↓</button>
+                <button class="dir-btn" onclick="moveDir('up')" title="Atas">↑</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Keluar -->
+    <div id="exit-modal" class="modal">
+        <div class="modal-content">
+            <h3>Konfirmasi Keluar</h3>
+            <p>Apakah Anda yakin ingin keluar dari misi?</p>
+            <div style="margin-top: 15px; display: flex; justify-content: center; gap: 10px;">
+                <button id="confirm-exit" class="btn" style="background-color: #e74c3c; margin-top:0;">Ya</button>
+                <button id="cancel-exit" class="btn" style="background-color: #95a5a6; margin-top:0;">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Game Over -->
+    <div id="gameover-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: #e74c3c;">Waktu Habis!</h3>
+            <p>Sayang sekali, waktu Anda telah habis (Game Over).</p>
+            <button onclick="resetGame()" class="btn" style="margin-top: 10px;">Coba Lagi</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('mazeCanvas');
+        const ctx = canvas.getContext('2d');
+        const player = document.getElementById('player');
+        const exitModal = document.getElementById('exit-modal');
+        const gameOverModal = document.getElementById('gameover-modal');
+        const pauseBtn = document.getElementById('pause-btn');
+
+        let timeLeft = 45;
+        let timerInterval = null;
+        let isPaused = false;
+        let isGameOver = false;
+
+        let px = 12, py = 12;
+        const radius = 6;
+        const speed = 3;
+
+        const walls = [
+            {x1: 0, y1: 0, x2: 350, y2: 0}, {x1: 350, y1: 0, x2: 350, y2: 350},
+            {x1: 350, y1: 350, x2: 0, y2: 350}, {x1: 0, y1: 350, x2: 0, y2: 0},
+            {x1: 70, y1: 0, x2: 70, y2: 50}, {x1: 150, y1: 0, x2: 150, y2: 80},
+            {x1: 220, y1: 0, x2: 220, y2: 50}, {x1: 280, y1: 0, x2: 280, y2: 110},
+            {x1: 20, y1: 90, x2: 90, y2: 90}, {x1: 90, y1: 40, x2: 140, y2: 40},
+            {x1: 160, y1: 110, x2: 280, y2: 110}, {x1: 120, y1: 50, x2: 120, y2: 150},
+            {x1: 40, y1: 150, x2: 130, y2: 150}, {x1: 180, y1: 70, x2: 180, y2: 200},
+            {x1: 230, y1: 140, x2: 320, y2: 140}, {x1: 230, y1: 140, x2: 230, y2: 220},
+            {x1: 100, y1: 190, x2: 200, y2: 190}, {x1: 70, y1: 190, x2: 70, y2: 280},
+            {x1: 130, y1: 230, x2: 280, y2: 230}, {x1: 130, y1: 230, x2: 130, y2: 310},
+            {x1: 170, y1: 270, x2: 300, y2: 270}, {x1: 250, y1: 270, x2: 250, y2: 320},
+            {x1: 50, y1: 310, x2: 110, y2: 310}
+        ];
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isPaused && !isGameOver) {
+                    timeLeft--;
+                    let mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                    let secs = (timeLeft % 60).toString().padStart(2, '0');
+                    document.getElementById('timer-text').textContent = `${mins}.${secs}`;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        isGameOver = true;
+                        gameOverModal.style.display = 'flex';
+                    }
+                }
+            }, 1000);
+        }
+
+        function drawMaze() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#000';
+
+            ctx.strokeRect(2, 2, 346, 346);
+
+            ctx.beginPath();
+            walls.forEach(w => {
+                if(w.x1 !== 0 || w.y1 !== 0 || w.x2 !== 350) {
+                    ctx.moveTo(w.x1, w.y1);
+                    ctx.lineTo(w.x2, w.y2);
+                }
+            });
+            ctx.stroke();
+
+            ctx.fillStyle = '#2ecc71';
+            ctx.fillRect(320, 320, 26, 26);
+        }
+
+        function checkCollision(x, y) {
+            const buffer = radius + 2;
+            for (let w of walls) {
+                let x1 = w.x1, y1 = w.y1, x2 = w.x2, y2 = w.y2;
+                let A = x - x1, B = y - y1, C = x2 - x1, D = y2 - y1;
+                let dot = A * C + B * D;
+                let lenSq = C * C + D * D;
+                let param = -1;
+                if (lenSq !== 0) param = dot / lenSq;
+                let xx, yy;
+                if (param < 0) { xx = x1; yy = y1; }
+                else if (param > 1) { xx = x2; yy = y2; }
+                else { xx = x1 + param * C; yy = y1 + param * D; }
+                let dx = x - xx, dy = y - yy;
+                let dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < buffer) return true;
+            }
+            return false;
+        }
+
+        function updatePlayerPos() {
+            player.style.left = (px - radius) + 'px';
+            player.style.top = (py - radius) + 'px';
+
+            if (px >= 315 && py >= 315) {
+                alert('Selamat! Anda berhasil menyelesaikan misi labirin.');
+                resetGamePosition();
+            }
+        }
+
+        function moveDir(dir) {
+            if (isPaused || isGameOver) return;
+            let nextX = px, nextY = py;
+            
+            if (dir === 'left') nextX -= speed;
+            if (dir === 'right') nextX += speed;
+            if (dir === 'up') nextY -= speed;
+            if (dir === 'down') nextY += speed;
+
+            if (!checkCollision(nextX, nextY)) {
+                px = nextX;
+                py = nextY;
+                updatePlayerPos();
+            }
+        }
+
+        function resetGamePosition() {
+            px = 12; py = 12;
+            updatePlayerPos();
+        }
+
+        function resetGame() {
+            timeLeft = 45;
+            isGameOver = false;
+            isPaused = false;
+            pauseBtn.textContent = '⏸';
+            gameOverModal.style.display = 'none';
+            document.getElementById('timer-text').textContent = '00.45';
+            resetGamePosition();
+            startTimer();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (['ArrowLeft', 'KeyA', 'a'].includes(e.code) || e.key === 'ArrowLeft' || e.key === 'a') moveDir('left');
+            if (['ArrowRight', 'KeyD', 'd'].includes(e.code) || e.key === 'ArrowRight' || e.key === 'd') moveDir('right');
+            if (['ArrowUp', 'KeyW', 'w'].includes(e.code) || e.key === 'ArrowUp' || e.key === 'w') moveDir('up');
+            if (['ArrowDown', 'KeyS', 's'].includes(e.code) || e.key === 'ArrowDown' || e.key === 's') moveDir('down');
+        });
+
+        pauseBtn.addEventListener('click', () => {
+            isPaused = !isPaused;
+            pauseBtn.textContent = isPaused ? '▶' : '⏸';
+        });
+
+        document.getElementById('exit-btn').addEventListener('click', () => {
+            isPaused = true;
+            exitModal.style.display = 'flex';
+        });
+
+        document.getElementById('confirm-exit').addEventListener('click', () => {
+            window.location.href = 'misi.html';
+        });
+
+        document.getElementById('cancel-exit').addEventListener('click', () => {
+            exitModal.style.display = 'none';
+            isPaused = false;
+        });
+
+        drawMaze();
+        updatePlayerPos();
+        startTimer();
+    </script>
+</body>
+</html>

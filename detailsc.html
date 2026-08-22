@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeSphere - Detail Materi JavaScript</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f1f5f9; color: #1e293b; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+        .top-nav { background-color: #ffffff; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; height: 60px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .back-btn { background: none; border: none; color: #64748b; font-weight: bold; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; gap: 5px; }
+        .back-btn:hover { color: #1e293b; }
+        .topic-title-nav { font-weight: bold; font-size: 0.95rem; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        .js-badge { background-color: #fef9c3; color: #854d0e; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+
+        .workspace { display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
+
+        .sidebar { width: 300px; background-color: #ffffff; border-right: 1px solid #e2e8f0; padding: 20px 15px; overflow-y: auto; }
+        .menu-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: #475569; margin-bottom: 4px; }
+        .menu-item.active { background-color: #fef9c3; color: #854d0e; border-left: 4px solid #eab308; font-weight: bold; }
+
+        .content-area { flex: 1; padding: 30px; overflow-y: auto; background-color: #f8fafc; }
+        .theory-card { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 25px; }
+        
+        .tab-container { display: flex; gap: 10px; margin-bottom: 0; }
+        .tab-btn { background-color: #e2e8f0; border: 1px solid #cbd5e1; border-bottom: none; color: #475569; padding: 8px 16px; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
+        .tab-btn.active { background-color: #ffffff; color: #854d0e; border-top: 2px solid #eab308; border-bottom: 2px solid #ffffff; border-color: #e2e8f0; }
+
+        .editor-box { background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 0 8px 8px 8px; padding: 20px; margin-bottom: 40px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .code-textarea { width: 100%; height: 260px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; font-family: monospace; outline: none; }
+        
+        #output-view { display: none; background-color: #ffffff; padding: 25px; border-radius: 8px; min-height: 260px; border: 1px solid #e2e8f0; }
+        .run-btn { background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        .run-btn:hover { background: #1d4ed8; }
+
+        /* Status Popup */
+        .status-popup { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px; color: white; font-weight: bold; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: none; }
+        .popup-lulus { background-color: #22c55e; }
+        .popup-gagal { background-color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <!-- Header dengan posisi JS di sebelah kiri -->
+    <div class="top-nav">
+        <div class="nav-left">
+            <button class="back-btn" onclick="window.location.href='dashboard.html'">←</button>
+            <div class="topic-title-nav">
+                <span class="js-badge">JS</span> Interaktivitas Halaman Web
+            </div>
+        </div>
+    </div>
+
+    <div class="workspace">
+        <div class="sidebar">
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                <li class="menu-item active" onclick="switchTopic('variables', event)">Variabel & Operasi Dasar</li>
+                <li class="menu-item" onclick="switchTopic('arrays', event)">Array & Perulangan</li>
+                <li class="menu-item" onclick="switchTopic('calculator', event)">Kalkulator Nilai</li>
+            </ul>
+        </div>
+
+        <div class="content-area">
+            <h2 id="page-heading" style="margin-top: 0; margin-bottom: 20px; color: #0f172a;">Variabel & Operasi Dasar</h2>
+            <div class="theory-card" id="theory-text">Teori JS...</div>
+
+            <div class="tab-container">
+                <button class="tab-btn active" id="btn-code" onclick="switchTab('code')">Kode</button>
+                <button class="tab-btn" id="btn-output" onclick="switchTab('output')">▶ Output</button>
+            </div>
+
+            <div class="editor-box">
+                <div id="code-view">
+                    <textarea id="code-textarea" class="code-textarea"></textarea>
+                </div>
+                <div id="output-view">
+                    <div id="placeholder-msg" style="color: #64748b; text-align: center; padding-top: 50px;">
+                        <p>Tekan tombol di bawah untuk menjalankan kode</p>
+                        <button class="run-btn" onclick="runCode()">Jalankan Kode</button>
+                    </div>
+                    <div id="js-output-result"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elemen untuk Pop-up Status -->
+    <div id="status-popup" class="status-popup"></div>
+
+    <script>
+        const jsTopics = {
+            variables: {
+                title: "Variabel & Operasi Dasar",
+                theory: "Gunakan <code>const</code> untuk nilai tetap dan <code>let</code> untuk nilai yang bisa berubah.",
+                code: "const nama = 'Budi';\nlet nilai = 85;\n\ndocument.getElementById('js-output-result').innerHTML = `<h3>Halo, ${nama}!</h3><p>Nilai Anda: ${nilai}</p>`;"
+            },
+            arrays: {
+                title: "Array & Perulangan",
+                theory: "Array menyimpan banyak data. Kita bisa menggunakan <code>forEach</code> untuk menampilkan data.",
+                code: "const buah = ['Apel', 'Jeruk', 'Mangga'];\nlet html = '<ul>';\nbuah.forEach(b => html += `<li>${b}</li>`);\nhtml += '</ul>';\ndocument.getElementById('js-output-result').innerHTML = html;"
+            },
+            calculator: {
+                title: "Kalkulator Nilai Siswa",
+                theory: "DOM Manipulation memungkinkan JavaScript untuk membaca beberapa input, melakukan kalkulasi seperti menghitung nilai rata-rata, dan menampilkan hasilnya secara dinamis. Keterangan kelulusan ditentukan berdasarkan nilai rata-rata, misalnya jika nilai >= 75 maka dianggap lulus.",
+                code: `<div style="font-family: Arial, sans-serif; max-width: 300px;">
+    <label for="nilai1">Nilai Matematika:</label><br>
+    <input type='number' id='nilai1' placeholder='0-100' style='margin-bottom:10px; padding:8px; width: 100%; border: 1px solid #ccc; border-radius: 4px;'><br>
+    
+    <label for="nilai2">Nilai Bhs. Indonesia:</label><br>
+    <input type='number' id='nilai2' placeholder='0-100' style='margin-bottom:15px; padding:8px; width: 100%; border: 1px solid #ccc; border-radius: 4px;'><br>
+    
+    <button onclick='hitungRataRata()' style='background: #2563eb; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 1rem;'>Hitung Rata-rata</button>
+    <p style="font-size: 0.8rem; color: #64748b; text-align: center; margin-top: 8px;">*Nilai rata-rata ≥ 75 dinyatakan Lulus.</p>
+    
+    <p id='hasil' style="font-weight: bold; margin-top: 20px;"></p>
+</div>
+
+<script>
+    function hitungRataRata() {
+        const nilai1 = document.getElementById('nilai1').value;
+        const nilai2 = document.getElementById('nilai2').value;
+        const hasilElem = document.getElementById('hasil');
+
+        if (nilai1 === '' || nilai2 === '') {
+            hasilElem.innerHTML = '<span style="color: red;">Harap isi kedua nilai.</span>';
+            return;
+        }
+
+        const rataRata = (Number(nilai1) + Number(nilai2)) / 2;
+        const batasLulus = 75;
+        const isLulus = rataRata >= batasLulus;
+        const status = isLulus ? 'Lulus' : 'Tidak Lulus';
+
+        hasilElem.innerHTML = \`Nilai rata-rata: <strong>\${rataRata}</strong><br>Keterangan: <strong>\${status}</strong>\`;
+        showStatusPopup(isLulus, rataRata);
+    }
+<\/script>`
+            }
+        };
+
+        let currentTopicKey = 'variables';
+
+        function switchTab(tab) {
+            document.getElementById('btn-code').classList.toggle('active', tab === 'code');
+            document.getElementById('btn-output').classList.toggle('active', tab === 'output');
+            document.getElementById('code-view').style.display = tab === 'code' ? 'block' : 'none';
+            document.getElementById('output-view').style.display = tab === 'output' ? 'block' : 'none';
+
+            if (tab === 'output') {
+                runCode();
+            }
+        }
+
+        function runCode() {
+            const codeValue = document.getElementById('code-textarea').value;
+            const outputResult = document.getElementById('js-output-result');
+            document.getElementById('placeholder-msg').style.display = 'none';
+            
+            const scriptTagMatch = codeValue.match(/<script>([\s\S]*?)<\/script>/i);
+            const scriptContent = scriptTagMatch ? scriptTagMatch[1] : codeValue;
+            
+            const htmlTagMatch = codeValue.match(/^([\s\S]*?)<script>/i);
+            const htmlContent = htmlTagMatch ? htmlTagMatch[1] : (!scriptTagMatch ? codeValue : '');
+
+            outputResult.innerHTML = htmlContent;
+
+            try {
+                window.eval(scriptContent);
+            } catch (e) {
+                outputResult.innerHTML = `<span style="color:red">Error: ${e.message}</span>`;
+            }
+        }
+
+        function switchTopic(key, event) {
+            currentTopicKey = key;
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            document.getElementById('page-heading').innerText = jsTopics[key].title;
+            document.getElementById('theory-text').innerHTML = jsTopics[key].theory;
+            document.getElementById('code-textarea').value = jsTopics[key].code;
+            document.getElementById('js-output-result').innerHTML = ""; 
+            document.getElementById('placeholder-msg').style.display = 'block';
+        }
+
+        function showStatusPopup(isLulus, nilai) {
+            const popup = document.getElementById('status-popup');
+            popup.textContent = `Status: ${isLulus ? 'LULUS' : 'TIDAK LULUS'} (Nilai: ${nilai})`;
+            popup.className = 'status-popup';
+            popup.classList.add(isLulus ? 'popup-lulus' : 'popup-gagal');
+            
+            popup.style.display = 'block';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 3000);
+        }
+
+        // Init
+        document.getElementById('code-textarea').value = jsTopics['variables'].code;
+        document.getElementById('theory-text').innerHTML = jsTopics['variables'].theory;
+    </script>
+</body>
+</html>
